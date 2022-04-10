@@ -22,13 +22,13 @@ const pool = new Pool({
  * @param {String} email The email of the user.
  * @return {Promise<{}>} A promise to the user.
  */
-const getUserWithEmail = function(email) {
+const getUserWithEmail = function (email) {
   return pool
     .query(`SELECT * FROM users WHERE email = $1;`, [email])
     .then((result) => {
-      if(result.rows[0].email){
+      if (result.rows[0].email) {
         return result.rows[0];
-      }  
+      }
       return null;
     })
     .catch((err) => {
@@ -42,13 +42,13 @@ exports.getUserWithEmail = getUserWithEmail;
  * @param {string} id The id of the user.
  * @return {Promise<{}>} A promise to the user.
  */
-const getUserWithId = function(id) {
+const getUserWithId = function (id) {
   return pool
     .query(`SELECT * FROM users WHERE id = $1;`, [id])
     .then((result) => {
-      if(result.rows[0].id){
+      if (result.rows[0].id) {
         return result.rows[0];
-      }  
+      }
       return null;
     })
     .catch((err) => {
@@ -63,7 +63,7 @@ exports.getUserWithId = getUserWithId;
  * @param {{name: string, password: string, email: string}} user
  * @return {Promise<{}>} A promise to the user.
  */
-const addUser =  function(name, email, password) {
+const addUser = function (name, email, password) {
   console.log(name)
   return pool
     .query(`INSERT INTO users (name, email, password)
@@ -87,7 +87,7 @@ exports.addUser = addUser;
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 
-const getAllReservations = function(guest_id, limit = 10) {
+const getAllReservations = function (guest_id, limit = 10) {
   let query = `SELECT properties.*, reservations.*, avg(rating) as average_rating
   FROM reservations
   JOIN properties ON reservations.property_id = properties.id
@@ -116,7 +116,7 @@ exports.getAllReservations = getAllReservations;
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
  */
- const getAllProperties = function(options, limit = 10) {
+const getAllProperties = function (options, limit = 10) {
 
   const queryParams = [];
 
@@ -136,8 +136,8 @@ exports.getAllReservations = getAllReservations;
     queryString += `WHERE owner_id = $${queryParams.length} `;
   }
 
-  if (options. minimum_price_per_night) {
-    queryParams.push(options. minimum_price_per_night * 100);
+  if (options.minimum_price_per_night) {
+    queryParams.push(options.minimum_price_per_night * 100);
     queryString += `AND cost_per_night >= $${queryParams.length} `;
   }
 
@@ -158,14 +158,12 @@ exports.getAllReservations = getAllReservations;
   queryParams.push(limit);
   queryString += `
   ORDER BY cost_per_night
-  LIMIT $2;
+  LIMIT $${queryParams.length};
   `;
 
-  console.log(queryString, queryParams);
-
   return pool
-  .query(queryString, queryParams)
-  .then((res) => res.rows);
+    .query(queryString, queryParams)
+    .then((res) => res.rows);
 };
 exports.getAllProperties = getAllProperties;
 
@@ -176,16 +174,16 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 
-const addProperty = function(property) {
-  let query =`INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, parking_spaces,number_of_bathrooms, number_of_bedrooms, country, street, city, province, post_code)
+const addProperty = function (property) {
+  let query = `INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, parking_spaces,number_of_bathrooms, number_of_bedrooms, country, street, city, province, post_code)
   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
   RETURNING *;
   `;
   const params = [property.owner_id, property.title, property.description, property.thumbnail_photo_url, property.cover_photo_url, property.cost_per_night, property.parking_spaces, property.number_of_bathrooms, property.number_of_bedrooms, property.country, property.street, property.city, property.province, property.post_code];
 
   return pool
-  .query(query, params)
-  .then((result) => {
+    .query(query, params)
+    .then((result) => {
       return result.rows[0];
     })
     .catch((err) => {
